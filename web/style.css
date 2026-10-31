@@ -1,0 +1,244 @@
+:root {
+  --bg: #f7f7f5;
+  --panel: #ffffff;
+  --text: #1c1c1e;
+  --muted: #62666d;
+  --border: #d4d4d0;
+  --accent: #2456d6;
+  --cell: #eef1f7;
+  --compare: #fff0b3;
+  --shift: #cfe3ff;
+  --new: #c9f0d2;
+  --found: #9be3ae;
+  --removed: #ffd0d0;
+  --code-bg: #f0f0ec;
+  --code-active: #ffe58a;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171a;
+    --panel: #1e2125;
+    --text: #ececec;
+    --muted: #a0a4ab;
+    --border: #3a3e44;
+    --accent: #7ba2ff;
+    --cell: #2a2e35;
+    --compare: #6b5a12;
+    --shift: #214a80;
+    --new: #1f5a33;
+    --found: #2b7a46;
+    --removed: #7a2b2b;
+    --code-bg: #181a1d;
+    --code-active: #5a4a10;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 system-ui, sans-serif;
+}
+header, main { max-width: 1500px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 20px; }
+h1 { margin: 0; font-size: 1.6rem; }
+header p { margin: 0 0 16px; color: var(--muted); }
+h3 { margin: 16px 0 6px; font-size: 1rem; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1.2fr); gap: 16px; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+.main, .side, .notes section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+.side h3:first-child, .complexity h3 { margin-top: 0; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 16px 0 32px; }
+.notes section h3 { margin-top: 0; }
+.notes ul { padding-left: 18px; margin: 0; }
+.muted { color: var(--muted); }
+.error { color: #c0392b; min-height: 1.5em; margin: 4px 0; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.field { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--muted); }
+.field input, .field select { width: 90px; font-size: 1rem; padding: 4px 6px; }
+.field select { width: 110px; }
+button {
+  font: inherit; padding: 6px 12px; cursor: pointer;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: default; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.stage { overflow-x: auto; padding: 8px 0; min-height: 180px; }
+.row { margin-bottom: 12px; }
+.row-label { font: 0.8rem monospace; color: var(--muted); margin-bottom: 4px; }
+.cells { display: flex; gap: 6px; }
+.cell { width: 64px; flex: none; text-align: center; }
+.cell .value {
+  height: 52px; line-height: 50px; font-size: 1.25rem; font-weight: 600;
+  background: var(--cell); border: 2px solid var(--border); border-radius: 6px;
+  transition: background-color 0.2s;
+}
+.cell.empty .value { border-style: dashed; background: transparent; }
+.cell .index { font: 0.75rem monospace; color: var(--muted); }
+.cell .tag { font-size: 0.7rem; min-height: 1.1em; color: var(--muted); }
+.cell .pointer { font: 0.75rem monospace; color: var(--accent); min-height: 1.1em; }
+.mark-compare .value { background: var(--compare); border-color: #c9a400; }
+.mark-shift .value { background: var(--shift); border-color: var(--accent); }
+.mark-new .value { background: var(--new); border-color: #2e9e52; }
+.mark-found .value { background: var(--found); border-color: #2e9e52; }
+.mark-removed .value { background: var(--removed); border-color: #c0392b; }
+
+.caption { font-size: 1.05rem; min-height: 3em; margin: 8px 0 4px; }
+.meta { font: 0.8rem monospace; color: var(--muted); margin-bottom: 8px; }
+.transport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.transport input[type="range"] { width: 130px; }
+.speed { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--muted); }
+
+.code { background: var(--code-bg); border-radius: 6px; padding: 6px 0; font: 0.8rem/1.6 monospace; overflow-x: auto; }
+.code-line { display: flex; white-space: pre; padding: 0 8px; }
+.code-line.active { background: var(--code-active); }
+.code-line .ln { width: 2em; color: var(--muted); user-select: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+[hidden] { display: none !important; }
+
+/* Cells are redrawn each step, so a short pop makes the changed ones visible. */
+@keyframes pop {
+  from { transform: scale(0.8); }
+  to { transform: scale(1); }
+}
+.cell[class*="mark-"] .value { animation: pop 0.3s ease-out; }
+
+.mark-error .value { background: var(--removed); border-color: #c0392b; }
+.field input.wide { width: 160px; }
+
+/* Vertical rows (stack): slot 0 at the bottom, one slot per line. */
+.cells.vertical { flex-direction: column-reverse; gap: 4px; width: max-content; }
+.cells.vertical .cell { width: auto; display: grid; grid-template-columns: 2em 160px 5.5em 6em; align-items: center; gap: 8px; text-align: left; }
+.cells.vertical .index { order: 0; text-align: right; }
+.cells.vertical .value { order: 1; height: 40px; line-height: 38px; text-align: center; }
+.cells.vertical .tag { order: 2; }
+.cells.vertical .pointer { order: 3; }
+
+nav.topics { display: flex; gap: 8px; margin-bottom: 16px; }
+nav.topics a {
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text); text-decoration: none; background: var(--panel);
+}
+nav.topics a[aria-current="page"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Extra mark kinds, shared by array cells and tree nodes. */
+.mark-active .value { background: var(--shift); border-color: var(--accent); }
+.mark-queued .value { background: var(--compare); border-color: #c9a400; }
+.mark-visit .value { background: var(--found); border-color: #2e9e52; }
+.mark-visited .value { background: var(--new); border-color: #2e9e52; }
+
+/* Tree (SVG) */
+svg.tree { display: block; max-width: none; }
+.tedge { stroke: var(--border); stroke-width: 2; }
+.tnode circle { fill: var(--cell); stroke: var(--border); stroke-width: 2; transition: fill 0.2s; }
+.tval { fill: var(--text); font: 600 15px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.ttag { fill: var(--muted); font: 11px system-ui, sans-serif; text-anchor: middle; }
+.tnode.mark-compare circle, .tnode.mark-queued circle { fill: var(--compare); stroke: #c9a400; }
+.tnode.mark-active circle { fill: var(--shift); stroke: var(--accent); }
+.tnode.mark-new circle, .tnode.mark-visited circle { fill: var(--new); stroke: #2e9e52; }
+.tnode.mark-found circle, .tnode.mark-visit circle { fill: var(--found); stroke: #2e9e52; stroke-width: 3; }
+.tnode.mark-removed circle, .tnode.mark-error circle { fill: var(--removed); stroke: #c0392b; }
+.tnode[class*="mark-"] circle { animation: pop-svg 0.3s ease-out; transform-box: fill-box; transform-origin: center; }
+@keyframes pop-svg { from { transform: scale(0.8); } to { transform: scale(1); } }
+
+/* Graph (SVG) and compact rows */
+.field input.narrow { width: 64px; text-transform: uppercase; }
+.mark-path .value { background: var(--shift); border-color: var(--accent); }
+.tnode.mark-path circle { fill: var(--shift); stroke: var(--accent); }
+svg.graph { display: block; max-width: none; }
+.gedge { stroke: var(--border); stroke-width: 2.5; }
+.gedge.mark-tree { stroke: var(--accent); stroke-width: 4.5; }
+.gedge.mark-found { stroke: #2e9e52; stroke-width: 5.5; }
+.gedge.mark-new { stroke: #2e9e52; stroke-width: 4.5; }
+.gedge.mark-compare { stroke: #c9a400; stroke-width: 4; stroke-dasharray: 6 4; }
+.gedge.mark-removed { stroke: #c0392b; stroke-width: 4; stroke-dasharray: 6 4; }
+.gweight { fill: var(--text); font: 600 12px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central;
+  paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; }
+.glabel { fill: var(--accent); font: 600 12px system-ui, sans-serif; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; }
+.cells.compact { min-height: 38px; gap: 4px; }
+.cells.compact .index, .cells.compact .tag, .cells.compact .pointer { display: none; }
+.cells.compact .value { height: 34px; line-height: 32px; font-size: 0.95rem; }
+.row:has(.cells.compact) { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.row:has(.cells.compact) .row-label { width: 2.5em; margin: 0; font-size: 0.9rem; }
+
+/* Linked list (SVG) */
+svg.llist { display: block; max-width: none; }
+.lnode rect { fill: var(--cell); stroke: var(--border); stroke-width: 2; transition: fill 0.2s; }
+.lsplit { stroke: var(--border); stroke-width: 2; }
+.ldot { fill: var(--muted); }
+.lnull { fill: none; stroke: var(--border); stroke-width: 2; stroke-dasharray: 4 3; }
+.lnulltext { dominant-baseline: central; }
+.ledge { stroke: var(--muted); stroke-width: 2.5; fill: none; }
+.ledge.mark-new { stroke: #2e9e52; stroke-width: 4; }
+.ledge.mark-compare { stroke: #c9a400; stroke-width: 4; stroke-dasharray: 6 4; }
+.ledge.mark-removed { stroke: #c0392b; stroke-width: 4; }
+.lptr { fill: var(--accent); font: 600 12px system-ui, sans-serif; text-anchor: middle; }
+.lnode.mark-compare rect { fill: var(--compare); stroke: #c9a400; }
+.lnode.mark-active rect { fill: var(--shift); stroke: var(--accent); }
+.lnode.mark-new rect, .lnode.mark-visited rect { fill: var(--new); stroke: #2e9e52; }
+.lnode.mark-found rect, .lnode.mark-visit rect { fill: var(--found); stroke: #2e9e52; stroke-width: 3; }
+.lnode.mark-removed rect, .lnode.mark-error rect { fill: var(--removed); stroke: #c0392b; }
+
+/* Hash map buckets: one row per bucket, entries chained left to right. */
+.row.hl { box-shadow: inset 4px 0 0 var(--accent); background: var(--cell); border-radius: 4px; }
+.row:has(.cells.chain) { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; padding: 2px 0 2px 8px; }
+.row:has(.cells.chain) .row-label { width: 2.6em; margin: 0; font-size: 0.9rem; }
+.cells.chain { gap: 6px; align-items: center; min-height: 40px; }
+.cells.chain .cell { width: auto; display: flex; align-items: center; gap: 4px; text-align: left; }
+.cells.chain .index, .cells.chain .pointer { display: none; }
+.cells.chain .value { height: 34px; line-height: 32px; font-size: 0.95rem; padding: 0 10px; white-space: nowrap; }
+.cells.chain .tag { min-height: 0; font-size: 0.7rem; }
+.cells.chain .cell:not(:last-child) .tag::after { content: ' →'; font-size: 1rem; color: var(--muted); }
+.row-empty { color: var(--muted); font-size: 0.85rem; font-style: italic; }
+
+/* Two pointers: ruled-out cells fade, and kept cells are green. */
+.cell.dim { opacity: 0.35; }
+.mark-keep .value { background: var(--new); border-color: #2e9e52; }
+
+/* Sliding window: the cells inside the window. */
+.mark-window .value { background: var(--shift); border-color: var(--accent); }
+
+/* Dynamic programming tables: a label on the left, small cells in a row, empty cells not solved yet. */
+.row:has(.cells.grid) { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.row:has(.cells.grid) .row-label { width: 10em; margin: 0; font-size: 0.8rem; text-align: right; flex: none; }
+.cells.grid { gap: 4px; align-items: flex-start; }
+.cells.grid .cell { width: 46px; }
+.cells.grid .value { height: 34px; line-height: 32px; font-size: 0.9rem; }
+.cells.grid .index, .cells.grid .pointer { display: none; }
+.cells.grid .tag { font-size: 0.6rem; min-height: 0.9em; }
+.cells.grid.header .value { background: none; border-color: transparent; color: var(--muted); font-weight: 600; }
+.cells.grid.header .cell.empty .value { border-style: solid; }
+
+/* Backtracking: decision tree nodes and tag lists. */
+svg.stree { display: block; max-width: none; }
+.snode rect { fill: var(--cell); stroke: var(--border); stroke-width: 2; transition: fill 0.2s; }
+.sval { fill: var(--text); font: 600 12px ui-monospace, monospace; text-anchor: middle; dominant-baseline: central; }
+.sedge { fill: var(--muted); font: 10px system-ui, sans-serif; paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.snode.mark-active rect { fill: var(--shift); stroke: var(--accent); stroke-width: 3; }
+.snode.mark-path rect { fill: var(--shift); stroke: var(--accent); }
+.snode.mark-visited rect { fill: var(--new); stroke: #2e9e52; }
+.snode.mark-found rect { fill: var(--found); stroke: #2e9e52; stroke-width: 3; }
+.snode.mark-removed rect { fill: var(--removed); stroke: #c0392b; stroke-dasharray: 4 3; }
+.snode.mark-removed .sval { text-decoration: line-through; }
+.snode[class*="mark-"] rect { animation: pop-svg 0.3s ease-out; transform-box: fill-box; transform-origin: center; }
+.row:has(.cells.tags) { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+.row:has(.cells.tags) .row-label { width: 10em; margin: 0; font-size: 0.8rem; text-align: right; flex: none; }
+.cells.tags { flex-wrap: wrap; gap: 4px; min-height: 36px; }
+.cells.tags .cell { width: auto; }
+.cells.tags .value { height: 30px; line-height: 28px; font-size: 0.85rem; padding: 0 8px; white-space: nowrap; font-family: ui-monospace, monospace; }
+.cells.tags .index, .cells.tags .pointer, .cells.tags .tag { display: none; }

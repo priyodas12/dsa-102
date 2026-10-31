@@ -1,0 +1,36 @@
+export const lesson = {
+  title: 'Linked list',
+  why: 'An array keeps its items packed side by side, so adding or removing one in the middle means shifting everything after it. A linked list gives up that packing: each item lives in its own node that simply points to the next one, like a scavenger hunt where every clue tells you where the next clue is. Inserting or removing is just changing a pointer, with no shifting and no resizing.',
+  how: [
+    'A node holds a value and a reference to the next node. The list itself only remembers head, the first node. The last node\'s next is null.',
+    'Nodes can be anywhere in memory. There is no address formula like start + i × size, so reaching the i-th node means following i arrows from the head: O(i).',
+    'To insert after a node, point the new node at what follows first, then point the earlier node at the new one. To remove, point the earlier node past the target. Either way, only one or two references change.',
+    'But you first have to find the earlier node, and a singly linked list can only walk forward. So insert and remove at a position cost O(n) to reach it, and O(1) for the pointer change itself.',
+    'Inserting at the head is O(1) because the position is already known. Appending is O(n) here, since we only keep head. Keeping a tail pointer as well makes it O(1).',
+    'A doubly linked list adds a prev reference to every node. Then a node can unlink itself, and the list can be walked in both directions, at the cost of more memory per node.',
+  ],
+  operations: {
+    prepend: { name: 'Insert at head', time: 'O(1)', space: 'O(1)', note: 'No walking and no shifting, just two pointer changes.' },
+    append: { name: 'Insert at tail', time: 'O(n)', space: 'O(1)', note: 'Walks the whole list to find the last node. With a tail pointer this becomes O(1).' },
+    insertAt: { name: 'Insert at index', time: 'O(n)', space: 'O(1)', note: 'Walking to the node before the position is O(index). The linking itself is O(1).' },
+    removeAt: { name: 'Remove at index', time: 'O(n)', space: 'O(1)', note: 'Removing the head is O(1). Elsewhere, finding the previous node dominates.' },
+    search: { name: 'Search by value', time: 'O(n)', space: 'O(1)', note: 'No shortcut: check each node in turn. Reading by index is O(n) too, unlike an array.' },
+    reverse: { name: 'Reverse the list', time: 'O(n)', space: 'O(1)', note: 'One pass, flipping each arrow in place with three pointers. No new nodes are created.' },
+    cycle: { name: 'Detect a cycle', time: 'O(n)', space: 'O(1)', note: 'A seen set would also work but costs O(n) space. The two-pointer method needs only two references.' },
+  },
+  tradeoffs: [
+    'Linked list: cheap insert and remove once you hold the node, no resizing, but O(n) access by index and an extra reference stored with every item.',
+    'Array: O(1) access by index and compact memory that the CPU cache loves, but O(n) to insert or remove in the middle and occasional resizing.',
+    'In practice arrays (ArrayList) win for most Java code, even for inserts, because of cache behavior. Linked lists matter for the idea: they are the base of stacks, queues, hash-map buckets, and LRU caches.',
+    'Stacks and queues are often built on a linked list: push and pop at the head are O(1), and with a tail pointer a queue gets O(1) at both ends.',
+  ],
+  pitfalls: [
+    'Link in the right order. In an insert, set node.next = prev.next before prev.next = node. The other order loses the rest of the list.',
+    'Never move or overwrite head without saving it first, or the whole list becomes unreachable.',
+    'Handle the head as a special case: inserting or removing at index 0 has no previous node.',
+    'Stop at the node before the position, not on it. Off-by-one here is the most common linked list bug.',
+    'Check for null before using node.next, and watch for an empty list and a single-node list.',
+    'A cycle makes any loop that follows next run forever. The slow and fast pointers meet inside a cycle; if fast reaches null there is none.',
+    'When reversing, save curr.next before changing it, or you cannot continue.',
+  ],
+};

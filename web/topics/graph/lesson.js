@@ -1,0 +1,36 @@
+export const lesson = {
+  title: 'Graph',
+  why: 'Trees only describe parent-child hierarchies. Many things are networks instead: roads between cities, friends on a social site, links between web pages, courses and their prerequisites. A graph is the general shape: things (vertices) joined by connections (edges). Most "how do I get from here to there" problems are graph problems.',
+  how: [
+    'A graph is a set of vertices and a set of edges. Edges can be directed (one-way) or undirected (two-way), and can carry a weight such as a distance or cost. This page uses an undirected, weighted graph.',
+    'An adjacency list stores, for every vertex, the list of its neighbors. It uses O(V + E) space and is the usual choice. An adjacency matrix is a V × V grid: O(1) edge lookup, but O(V²) space.',
+    'Unlike a tree, a graph can have cycles and can be disconnected, so every search needs a seen set to avoid going in circles and to skip what is already done.',
+    'Breadth-first search (BFS) uses a queue and explores in rings: all vertices 1 hop away, then 2 hops, and so on. In an unweighted graph the first time it reaches a vertex is by a shortest path.',
+    'Depth-first search (DFS) goes as deep as it can along one path, then backtracks. The call stack (or an explicit stack) remembers the way back.',
+    'Dijkstra finds the cheapest path in a weighted graph. It repeatedly finishes the closest unfinished vertex using a priority queue (the heap topic), and tries to improve its neighbors\' distances through it.',
+    'Counting connected components means starting a fresh search from every vertex not yet reached. The number of fresh starts is the answer.',
+  ],
+  operations: {
+    addEdge: { name: 'Add edge', time: 'O(1)', space: 'O(1)', note: 'Append to two lists. Checking whether the edge already exists would cost O(degree).' },
+    removeEdge: { name: 'Remove edge', time: 'O(degree)', space: 'O(1)', note: 'Each list must be scanned to find the edge. An adjacency matrix would make this O(1).' },
+    bfs: { name: 'Breadth-first search', time: 'O(V + E)', space: 'O(V)', note: 'Every vertex is queued once and every edge is looked at twice (once from each end). The queue and seen set hold up to V vertices.' },
+    dfs: { name: 'Depth-first search', time: 'O(V + E)', space: 'O(V)', note: 'Same work as BFS. The extra space is the recursion depth, which can reach V on a long chain.' },
+    dijkstra: { name: 'Dijkstra shortest path', time: 'O((V + E) log V)', space: 'O(V)', note: 'Each edge can add one entry to the priority queue, and each queue operation costs O(log V). Weights must not be negative.' },
+    components: { name: 'Connected components', time: 'O(V + E)', space: 'O(V)', note: 'Each vertex is visited once across all the searches, so the total is the same as a single DFS.' },
+  },
+  tradeoffs: [
+    'Use BFS for the fewest edges between two vertices, or to process things level by level. Use DFS to explore everything, find cycles, or when backtracking suits the problem.',
+    'BFS ignores weights. If edges have different costs, the path with the fewest hops is not necessarily the cheapest: use Dijkstra.',
+    'Dijkstra needs non-negative weights. With negative weights use Bellman-Ford. For all pairs of vertices use Floyd-Warshall.',
+    'Adjacency list for sparse graphs (few edges, most real networks). Adjacency matrix for small, dense graphs or when you constantly ask "is there an edge between a and b?".',
+    'A tree is just a connected graph with no cycles, so BFS and DFS on a tree are exactly the level-order and pre-order traversals from the tree topic.',
+  ],
+  pitfalls: [
+    'Forgetting the seen set. On a graph with a cycle the search never ends.',
+    'In BFS, mark a vertex as seen when you add it to the queue, not when you remove it. Otherwise it can be queued many times.',
+    'A search from one vertex only reaches its own component. For "the whole graph" you must loop over all vertices.',
+    'An undirected edge must be stored in both lists. Forgetting one direction gives a graph that behaves as if it were directed.',
+    'Dijkstra: a vertex can be queued several times with different distances. Skip entries that are older than the best known distance (stale entries).',
+    'Dijkstra silently gives wrong answers with negative weights, because a finished vertex might later turn out to be reachable more cheaply.',
+  ],
+};

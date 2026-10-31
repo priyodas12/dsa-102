@@ -1,0 +1,14 @@
+{
+  "name": "dsa-102",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Learn data structures and algorithms through step-by-step animation",
+  "license": "ISC",
+  "author": "priyobrato.das",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}

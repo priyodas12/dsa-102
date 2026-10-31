@@ -1,0 +1,35 @@
+export const lesson = {
+  title: 'Tree',
+  why: 'Arrays and lists are flat, but a lot of data is hierarchical: folders inside folders, an HTML page, a company org chart. A tree stores that shape directly. A binary search tree also keeps its values ordered so you can find one by discarding half the remaining tree at every step.',
+  how: [
+    'A tree is made of nodes. The top node is the root, nodes with no children are leaves, and the height is the number of levels.',
+    'In a binary tree every node has at most two children: left and right.',
+    'A binary search tree (BST) adds one rule: everything in a node\'s left subtree is smaller, everything in its right subtree is larger. This holds for every node, not just the root.',
+    'Search, insert and delete all walk one path from the root downwards, so they cost O(height). In a balanced tree that is O(log n).',
+    'Insert always adds a new leaf. Delete has three cases: a leaf is removed, a node with one child is replaced by that child, and a node with two children takes the value of its in-order successor.',
+    'A traversal visits every node once. In-order gives sorted output on a BST, pre-order and post-order differ in when the node is visited relative to its children, and level-order goes row by row using a queue.',
+  ],
+  operations: {
+    insert: { name: 'Insert', time: 'O(h)', space: 'O(h)', note: 'h is the height: about log n if balanced, but n if the values arrive sorted and the tree becomes a chain. Space is the recursion depth.' },
+    search: { name: 'Search', time: 'O(h)', space: 'O(h)', note: 'Each comparison discards an entire subtree. In a balanced tree, one million nodes need about 20 comparisons.' },
+    delete: { name: 'Delete', time: 'O(h)', space: 'O(h)', note: 'Finding the node is O(h). Finding the in-order successor for a two-child node is another O(h) at most.' },
+    inorder: { name: 'In-order traversal', time: 'O(n)', space: 'O(h)', note: 'Every node is visited once. The recursion stack is as deep as the tree is tall.' },
+    preorder: { name: 'Pre-order traversal', time: 'O(n)', space: 'O(h)', note: 'Every node is visited once, parent before children.' },
+    postorder: { name: 'Post-order traversal', time: 'O(n)', space: 'O(h)', note: 'Every node is visited once, children before parent.' },
+    levelorder: { name: 'Level-order traversal', time: 'O(n)', space: 'O(w)', note: 'w is the widest level, because that is the most the queue ever holds. It can be about n / 2.' },
+    lca: { name: 'Lowest common ancestor', time: 'O(h)', space: 'O(1)', note: 'The BST rule means one walk down is enough. In a general binary tree you would have to search both subtrees.' },
+  },
+  tradeoffs: [
+    'A BST gives ordered data with O(log n) search, insert and delete when balanced. A sorted array searches fast but inserts in O(n); a hash map is faster for lookup but has no order.',
+    'The shape depends on insertion order. Inserting 1, 2, 3, 4, 5 builds a chain and every operation degrades to O(n). Self-balancing trees (AVL, red-black, used by Java\'s TreeMap) fix this.',
+    'Use a BST (or TreeMap) when you need sorted iteration, range queries or the nearest value. Use a hash map when you only need exact lookup.',
+    'A heap is also a tree but with a different rule: the parent is smaller than its children. It is built for fast min or max, not for search.',
+  ],
+  pitfalls: [
+    'The BST rule applies to the whole subtree, not just the direct children. Checking only parent against child accepts invalid trees, which is the classic bug in "validate a BST".',
+    'Deleting a node with two children: copy the successor\'s value, then delete the successor from the right subtree. Forgetting that second step leaves a duplicate.',
+    'Always handle the null case first in recursive code, or you will get a NullPointerException on leaves.',
+    'Recursion depth equals tree height. A very skewed tree can overflow the call stack, which is another reason balance matters.',
+    'Pre-order, in-order and post-order are named after where the node is visited. They differ by one line of code, so mixing them up is easy.',
+  ],
+};
